@@ -545,8 +545,14 @@ async def test_frontend_dependency_restores_existing_dependency_stacks(
     }
     messages = []
 
+    request_received = False
+
     async def receive():
-        return {  # pragma: no cover
+        nonlocal request_received
+        if request_received:
+            await anyio.sleep_forever()  # wait until the response cancels the listener
+        request_received = True
+        return {
             "type": "http.request",
             "body": b"",
             "more_body": False,
